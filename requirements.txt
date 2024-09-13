@@ -1,4 +1,5 @@
-numpy==1.23.2
+numpy==2.1.1
 pandas==2.2.2
 python_docx==1.1.2
-streamlit==1.32.0
+pywin32==306
+streamlit==1.38.0

@@ -79,9 +79,9 @@ if 'search_text' not in st.session_state:
 
 # 搜索框
 search_input = st.text_input(
-    label="🔍 搜索你中意的爱车吧！按下 Enter 键确认", 
+    label="🔍 搜索你中意的爱车吧！按下 Enter 回车键确认", 
     value=st.session_state.search_text,  # 初始值为 session_state 中的搜索值
-    placeholder="请输入搜索关键字...",
+    placeholder="请输入搜索关键字...按下 Enter 回车键确认",
 )
 
 # 重置按钮

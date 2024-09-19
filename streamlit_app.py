@@ -67,39 +67,29 @@ cleaned_data = clean_data(integrated_data)
 
 # 交由streamlit呈现web表格
 
-# 页面标题
+# 添加标题
 st.header("工信部-减免车辆购置税的新能源汽车车型目录-汇总一览-更新日期：2024-09-11")
 
-# 创建一个新列 '搜索字段'，将所有列合并为一个字符串，便于快速搜索
-cleaned_data['搜索字段'] = cleaned_data.astype(str).apply(' '.join, axis=1).str.lower()
+# 添加搜索框和按钮
+search_term = st.text_input(label="🔍 搜索你中意的爱车吧！", placeholder="请输入搜索关键字...点击搜索按钮确认",)
+search_button = st.button("搜索")
+reset_button = st.button("（↻）重置到初始状态")
 
-# 定义一个 session state 来存储搜索框的值和初始数据
-if 'search_text' not in st.session_state:
-    st.session_state.search_text = ""
+# 初始化一个变量来存储过滤后的数据
+filtered_data = cleaned_data.copy()
 
-# 搜索框
-search_input = st.text_input(
-    label="🔍 搜索你中意的爱车吧！按下 Enter 回车键确认", 
-    value=st.session_state.search_text,  # 初始值为 session_state 中的搜索值
-    placeholder="请输入搜索关键字...按下 Enter 回车键确认",
-)
+# 如果点击了搜索按钮
+if search_button:
+    # 使用矢量化方法进行字符串匹配，提高速度
+    def contains_search_term(row):
+        return any(search_term.lower() in str(cell).lower() for cell in row)
+    filtered_data = cleaned_data[cleaned_data.apply(contains_search_term, axis=1)]
 
-# 重置按钮
-if st.button("（↻）重置到初始状态"):
-    # 点击重置按钮时，清空搜索框并返回初始状态
-    st.session_state.search_text = ""  # 清空搜索框
-    search_input = ""  # 也将当前搜索框输入清空
+# 如果点击了重置按钮
+if reset_button:
+    # 重置数据并清空搜索框
+    filtered_data = cleaned_data
+    search_term = ""
 
-# 如果搜索框有输入内容，过滤表格数据
-if search_input:
-    # 将用户输入的值保存到 session_state
-    st.session_state.search_text = search_input
-    
-    # 只搜索预处理过的 '搜索字段' 列
-    filtered_data = cleaned_data[cleaned_data['搜索字段'].str.contains(search_input.lower())]
-    
-    # 展示过滤后的数据，不包含 '搜索字段' 列
-    st.dataframe(filtered_data.drop(columns=['搜索字段']))
-else:
-    # 否则展示初始完整数据，不包含 '搜索字段' 列
-    st.dataframe(cleaned_data.drop(columns=['搜索字段']))
+# 显示过滤后的数据
+st.dataframe(filtered_data)
